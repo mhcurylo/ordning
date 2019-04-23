@@ -38,9 +38,9 @@ Available options:
 
   -p,--pomodoro INTEGER    The duration of a pomodoro in minutes (default: 25)
 
-  -s,--shortBrake INTEGER  The duration of a short brake in minutes (default: 5)
+  -s,--shortBreak INTEGER  The duration of a short break in minutes (default: 5)
 
-  -l,--longBrake INTEGER   The duration of a long brake in minutes (default: 5)
+  -l,--longBreak INTEGER   The duration of a long break in minutes (default: 5)
 
   -q,--quiet               Turn the sound off
 

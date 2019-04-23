@@ -31,12 +31,12 @@ pomodoroIO :: IO ()
 pomodoroIO =
   withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ ->
     bracket setUp cleanUp $ \_ -> do
-      (Configuration pomodoroDur shortBrakeDur longBrakeDur quiet) <-
+      (Configuration pomodoroDur shortBreakDur longBreakDur quiet) <-
         execParser configurationInfo
       case mkPomodoroConf
              (pomodoroDur * 60)
-             (shortBrakeDur * 60)
-             (longBrakeDur * 60) of
+             (shortBreakDur * 60)
+             (longBreakDur * 60) of
         Just config -> do
           cmds <- createCommandStream
           let someActs = someActivities config

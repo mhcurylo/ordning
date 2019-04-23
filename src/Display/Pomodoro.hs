@@ -8,8 +8,8 @@ import Pomodoro.Pomodoro
 
 displayActivityType :: ActivityType -> String
 displayActivityType Pomodoro = "Pomodoro"
-displayActivityType ShortBrake = "Short brake"
-displayActivityType LongBrake = "Long brake"
+displayActivityType ShortBreak = "Short break"
+displayActivityType LongBreak = "Long break"
 
 displaySomeState :: SomeState -> String
 displaySomeState (SomeState a t) =

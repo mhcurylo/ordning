@@ -8,8 +8,8 @@ import Options.Applicative
 
 data Configuration = Configuration
   { confPomodoroDuration :: Integer
-  , confShortBrakeDuration :: Integer
-  , confLongBrakeDuration :: Integer
+  , confShortBreakDuration :: Integer
+  , confLongBreakDuration :: Integer
   , confQuiet :: Bool
   }
 
@@ -29,15 +29,15 @@ configurationParser =
      metavar "INTEGER") <*>
   option
     auto
-    (long "shortBrake" <> short 's' <>
-     help "The duration of a short brake in minutes" <>
+    (long "shortBreak" <> short 's' <>
+     help "The duration of a short break in minutes" <>
      showDefault <>
      value 5 <>
      metavar "INTEGER") <*>
   option
     auto
-    (long "longBrake" <> short 'l' <>
-     help "The duration of a long brake in minutes" <>
+    (long "longBreak" <> short 'l' <>
+     help "The duration of a long break in minutes" <>
      showDefault <>
      value 15 <>
      metavar "INTEGER") <*>

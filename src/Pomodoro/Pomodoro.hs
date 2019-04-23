@@ -20,8 +20,8 @@ data Phase where
 
 data ActivityType
   = Pomodoro
-  | LongBrake
-  | ShortBrake
+  | LongBreak
+  | ShortBreak
   deriving (Show, Eq)
 
 data Activity p s l where
@@ -64,16 +64,16 @@ toSomeState ::
   -> SomeState
 toSomeState (Activity Pomodoro Ready) =
   SomeState Pomodoro $ someTimer $ timer @p
-toSomeState (Activity ShortBrake Ready) =
-  SomeState ShortBrake $ someTimer $ timer @s
-toSomeState (Activity LongBrake Ready) =
-  SomeState LongBrake $ someTimer $ timer @l
+toSomeState (Activity ShortBreak Ready) =
+  SomeState ShortBreak $ someTimer $ timer @s
+toSomeState (Activity LongBreak Ready) =
+  SomeState LongBreak $ someTimer $ timer @l
 toSomeState (Activity Pomodoro Finished) =
   SomeState Pomodoro $ someTimer $ finishedTimer @p
-toSomeState (Activity ShortBrake Finished) =
-  SomeState ShortBrake $ someTimer $ finishedTimer @s
-toSomeState (Activity LongBrake Finished) =
-  SomeState LongBrake $ someTimer $ finishedTimer @l
+toSomeState (Activity ShortBreak Finished) =
+  SomeState ShortBreak $ someTimer $ finishedTimer @s
+toSomeState (Activity LongBreak Finished) =
+  SomeState LongBreak $ someTimer $ finishedTimer @l
 toSomeState (Activity a (Abandoned t)) = SomeState a $ someTimer t
 toSomeState (Activity a (InProgress t)) = SomeState a $ someTimer t
 
@@ -121,11 +121,11 @@ pq ::
   => [Activity p s l]
 pq =
   [ Activity Pomodoro Ready
-  , Activity ShortBrake Ready
+  , Activity ShortBreak Ready
   , Activity Pomodoro Ready
-  , Activity ShortBrake Ready
+  , Activity ShortBreak Ready
   , Activity Pomodoro Ready
-  , Activity LongBrake Ready
+  , Activity LongBreak Ready
   ]
 
 illegal ::
@@ -152,8 +152,8 @@ forceStartProgress = do
   open act
   where
     startProgress Pomodoro = InProgress $ timer @p
-    startProgress LongBrake = InProgress $ timer @l
-    startProgress ShortBrake = InProgress $ timer @s
+    startProgress LongBreak = InProgress $ timer @l
+    startProgress ShortBreak = InProgress $ timer @s
     open (Activity a _) = do
       putActivity np
       return [Change HasStarted (toSomeState np)]
