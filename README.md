@@ -1,16 +1,33 @@
 # Ordning
 
-The pomodoro timer with a sound.
+An infinite list of pomodoro activities with timers and some sound.
+
+Inspired by IKEA.
+
+## To install
 
 Needs OpenAL / alut installed.
 
-The interface is an infinite list of pomodoro - related activities.
+https://wiki.haskell.org/ALUT
 
-To use:
+Install with stack.
+
+## To enjoy
+
+Type ordning, then command:
+
 l - next activity
+
 h - previous activity
+
 k - start activity
+
 f - finish activity
+
 a - abandon activity 
+
 j - restart abandoned activity
+
 q - quit
+
+
