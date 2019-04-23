@@ -54,7 +54,7 @@ library:
     - ALUT
 
 executables:
-  ordning-exe:
+  ordning:
     main:                Main.hs
     source-dirs:         app
     ghc-options:

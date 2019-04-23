@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: aceaaf959d42a65578e90a5ccf5ef1fd8840fbbc2e7c22975c284fd7d10669a5
+-- hash: 62bff7bb5f10ab459053eaca460aa601de403864bfc6618f4c21f4f5f5f03751
 
 name:           ordning
 version:        0.1.0.0
@@ -52,7 +52,7 @@ library
     , typelits-witnesses
   default-language: Haskell2010
 
-executable ordning-exe
+executable ordning
   main-is: Main.hs
   other-modules:
       Paths_ordning
