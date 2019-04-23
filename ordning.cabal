@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ba6173f4816d24b477ddabcf039b93a748385fb0065580b1efcf5b8eb3243913
+-- hash: 38d73e1aa2799c4e109b2049b14f8ec80903f3e9544905f1371c235bfa3b0a29
 
 name:           ordning
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
       Display.System
       Display.Timer
       Effect.PomodoroEvent
+      Options.Configuration
       Pomodoro
       Pomodoro.Pomodoro
       Pomodoro.Timer
