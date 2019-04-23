@@ -1,0 +1,82 @@
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: aceaaf959d42a65578e90a5ccf5ef1fd8840fbbc2e7c22975c284fd7d10669a5
+
+name:           ordning
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/mhcurylo/ordning#readme>
+homepage:       https://github.com/mhcurylo/ordning#readme
+bug-reports:    https://github.com/mhcurylo/ordning/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2018 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/mhcurylo/ordning
+
+library
+  exposed-modules:
+      Data.Fin
+      Data.Freer
+      Data.Tape
+      Display.Pomodoro
+      Display.System
+      Display.Timer
+      Effect.PomodoroEvent
+      Pomodoro
+      Pomodoro.Pomodoro
+      Pomodoro.Timer
+  other-modules:
+      Paths_ordning
+  hs-source-dirs:
+      src
+  default-extensions: DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass FlexibleInstances FlexibleContexts GADTs KindSignatures MultiParamTypeClasses ScopedTypeVariables TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators LambdaCase TypeApplications TemplateHaskell
+  build-depends:
+      ALUT
+    , OpenAL
+    , ansi-terminal
+    , base >=4.7 && <5
+    , comonad
+    , optparse-applicative
+    , stm
+    , typelits-witnesses
+  default-language: Haskell2010
+
+executable ordning-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_ordning
+  hs-source-dirs:
+      app
+  default-extensions: DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass FlexibleInstances FlexibleContexts GADTs KindSignatures MultiParamTypeClasses ScopedTypeVariables TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators LambdaCase TypeApplications TemplateHaskell
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , ordning
+  default-language: Haskell2010
+
+test-suite ordning-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_ordning
+  hs-source-dirs:
+      test
+  default-extensions: DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass FlexibleInstances FlexibleContexts GADTs KindSignatures MultiParamTypeClasses ScopedTypeVariables TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators LambdaCase TypeApplications TemplateHaskell
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      QuickCheck
+    , base >=4.7 && <5
+    , hspec
+    , ordning
+  default-language: Haskell2010
