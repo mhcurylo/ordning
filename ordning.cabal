@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 940750ac8347d6214f973547b3bce4f787c1ff6af4f886ddb266539be58bced3
+-- hash: 1c7e1a51792138da6e4058b865ddbe0f508923091a7e597d67adcc70f57ad532
 
 name:           ordning
 version:        0.1.0.0
@@ -27,7 +27,6 @@ source-repository head
 library
   exposed-modules:
       Data.Fin
-      Data.Freer
       Data.Tape
       Display.Pomodoro
       Display.System

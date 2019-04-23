@@ -45,17 +45,17 @@ right :: Tape a -> Tape a
 right (Tape xs v (y:>ys)) = Tape (v:>xs) y ys
 
 swapValue :: a -> Tape a -> Tape a
-swapValue nv (Tape xs v ys) = Tape xs nv ys
+swapValue nv (Tape xs _ ys) = Tape xs nv ys
 
 instance Show a => Show (Tape a) where
-  show (Tape (x:>xs) v (y:>ys)) = "Tape .." ++ show x ++ ", " ++ show v ++ ", " ++ show y ++ ".."
+  show (Tape (x:>_) v (y:>_)) = "Tape .." ++ show x ++ ", " ++ show v ++ ", " ++ show y ++ ".."
 
 instance Functor Tape where
   fmap f (Tape xs v ys) = Tape (fmap f xs) (f v) (fmap f ys)
 
 instance Comonad Tape where
   extract = Data.Tape.value
-  duplicate t@(Tape _ v _) = Tape (iterateS left (left t)) t (iterateS right (right t))
+  duplicate t = Tape (iterateS left (left t)) t (iterateS right (right t))
 
 fromLists :: [a] -> [a] -> Tape a
 fromLists xs ys = Tape (fromList xs) y ys'

@@ -12,11 +12,11 @@
 
 module Pomodoro.Pomodoro where
 
-import Data.Freer
 import Data.Tape
 import Pomodoro.Timer
 
 import Data.Proxy
+import Control.Monad.State
 
 class (TimerValue p, TimerValue s, TimerValue l) =>
       Pomodoros p s l
@@ -141,20 +141,20 @@ pq =
   ]
 
 illegal ::
-     Pomodoros p s l
+     (MonadState (Activities p s l) m, Pomodoros p s l)
   => PomodoroCommand
-  -> EffState (Activities p s l) [PomodoroEvent]
+  -> m [PomodoroEvent]
 illegal c = return [Illegal c]
 
-getCurrentActivity :: EffState (Activities p s l) (Activity p s l)
+getCurrentActivity :: (MonadState (Activities p s l) m, Pomodoros p s l) => m (Activity p s l)
 getCurrentActivity = fmap currentActivity get
 
-putActivity :: Activity p s l -> EffState (Activities p s l) ()
-putActivity act = update (\s -> swapActivity act s)
+putActivity :: (MonadState (Activities p s l) m, Pomodoros p s l) => Activity p s l -> m ()
+putActivity act = modify (\s -> swapActivity act s)
 
 forceStartProgress ::
-     forall p s l. Pomodoros p s l
-  => EffState (Activities p s l) [PomodoroEvent]
+     forall p s l m . (MonadState (Activities p s l) m, Pomodoros p s l)
+  => m [PomodoroEvent]
 forceStartProgress = do
   act <- getCurrentActivity
   open act
@@ -169,10 +169,10 @@ forceStartProgress = do
         np = Activity a $ startProgress a
 
 changeActivity ::
-     forall p s l. Pomodoros p s l
+     forall p s l m . (MonadState (Activities p s l) m, Pomodoros p s l)
   => (Activities p s l -> Activities p s l)
   -> PomodoroCommand
-  -> EffState (Activities p s l) [PomodoroEvent]
+  -> m [PomodoroEvent]
 changeActivity f pc = do
   s <- get
   let p = currentActivity s
@@ -185,9 +185,9 @@ changeActivity f pc = do
             np = currentActivity ns
 
 runCommand ::
-     forall p s l. Pomodoros p s l
+     forall p s l m . (MonadState (Activities p s l) m, Pomodoros p s l)
   => PomodoroCommand
-  -> EffState (Activities p s l) [PomodoroEvent]
+  -> m [PomodoroEvent]
 runCommand Next = changeActivity next Next
 runCommand Previous = changeActivity previous Previous
 runCommand Advance = do

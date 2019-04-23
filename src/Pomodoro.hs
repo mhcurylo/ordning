@@ -10,11 +10,11 @@ import Control.Concurrent
 import Control.Monad.STM
 import Control.Concurrent.STM.TChan
 import Control.Exception
-import Data.Freer
 import Pomodoro.Pomodoro
 import Display.Pomodoro
 import Effect.PomodoroEvent
 import Sound.ALUT
+import Control.Monad.State.Strict
 
 setUp :: IO Device
 setUp = do 
@@ -30,7 +30,7 @@ cleanUp device = do
 
 pomodoroIO :: IO ()
 pomodoroIO = withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ -> 
-  bracket setUp cleanUp $ \device ->
+  bracket setUp cleanUp $ \_ ->
     case mkPomodoroConf 1500 300 900 of
       Just config -> do
         cmds <- createCommandStream
@@ -42,11 +42,11 @@ pomodoroIO = withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ ->
         putStrLn "Incorrect configuration"
 
 eventLoop :: Pomodoros p s l => TChan (Maybe PomodoroCommand) -> Activities p s l -> IO ()
-eventLoop cmdT state = do
+eventLoop cmdT st = do
   cmd <- atomically $ readTChan cmdT
   case cmd of
     (Just pcmd) -> do
-      let (pev, nstate) = runStateEff (runCommand pcmd) state
+      let (pev, nstate) = runState (runCommand pcmd) st
       runPomodoroEffects pev
       eventLoop cmdT nstate
     Nothing -> return ()
