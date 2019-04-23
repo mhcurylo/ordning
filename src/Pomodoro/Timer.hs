@@ -24,10 +24,7 @@ module Pomodoro.Timer (
   ) where
 
 import GHC.TypeLits
-import GHC.Generics
-import Data.Kind                        
 import Data.Proxy
-import Unsafe.Coerce
 import Data.Type.Equality
 import GHC.TypeLits.Compare
 

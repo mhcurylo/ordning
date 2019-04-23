@@ -13,14 +13,6 @@ module Display.Timer (
   ) where
 
 import GHC.TypeLits
-import GHC.Generics
-import Data.Kind                        
-import Data.Proxy
-import Unsafe.Coerce
-import Data.Type.Equality
-import GHC.TypeLits.Compare
-
-import Data.Fin
 import Display.System
 import Pomodoro.Timer
 
@@ -42,7 +34,7 @@ ordningTape :: Max -> String
 ordningTape m = concat $ (map (leftPad 2 ' ' . (\x -> if (x `mod` 5) == 0 then show x else "--")) [0..(m `div` 2)]) ++ (repeat "  ")
 
 surroundAt :: Integer -> [a] -> [a] -> [a] -> [a]
-surroundAt n a b [] = a ++ b
+surroundAt _ a b [] = a ++ b
 surroundAt 0 a b (x:[]) = a ++ [x] ++ b
 surroundAt 0 a b (x:y:xs) = a ++ [x, y] ++ b ++ xs
 surroundAt n a b (x:xs) = [x] ++ surroundAt (n - 1) a b xs

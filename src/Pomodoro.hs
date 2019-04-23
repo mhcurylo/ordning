@@ -7,7 +7,6 @@ import Control.Monad
 import Display.System
 import System.IO
 import Control.Concurrent
-import Control.Monad
 import Control.Monad.STM
 import Control.Concurrent.STM.TChan
 import Control.Exception
@@ -26,7 +25,7 @@ setUp = do
 
 cleanUp :: Device -> IO ()
 cleanUp device = do
-  closeDevice device
+  _ <- closeDevice device
   putStrLn $ reset <> clrscr <> "Bye!"
 
 pomodoroIO :: IO ()

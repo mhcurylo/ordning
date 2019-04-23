@@ -1,6 +1,5 @@
 module Data.Tape where
 
-import Data.List
 import Control.Comonad
 
 infixr 8 :>
@@ -19,9 +18,10 @@ fromList :: [a] -> Stream a
 fromList = fromInfiniList . cycle
   where
     fromInfiniList (y:ys) = y :> fromInfiniList ys
+    fromInfiniList _ = error "This is an unsafe operation. Never use it on empty lists."
 
 instance Show a => Show (Stream a) where
-  show (x:>x':>xs) = "Stream " ++ show x ++ ", " ++ show x' ++ ".."
+  show (x:>x':>_) = "Stream " ++ show x ++ ", " ++ show x' ++ ".."
 
 instance Functor Stream where
   fmap f (x :> xs) = f x :> fmap f xs

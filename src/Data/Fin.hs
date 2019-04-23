@@ -19,11 +19,7 @@ module Data.Fin (
   ) where
 
 import GHC.TypeLits
-import GHC.Generics
-import Data.Kind                        
 import Data.Proxy
-import Data.Type.Equality
-import GHC.TypeLits.Compare
 
 data Fin (m :: Nat) where
   MkFin :: KnownNat m => Integer -> Fin m

@@ -1,10 +1,10 @@
 name:                ordning
 version:             0.1.0.0
 github:              "mhcurylo/ordning"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2018 Author name here"
+license:             MIT
+author:              "Mateusz Curylo"
+maintainer:          "mhcurylo@gmail.com"
+copyright:           "2019 Mateusz Curylo"
 
 extra-source-files:
 - README.md
@@ -44,12 +44,14 @@ dependencies:
 
 library:
   source-dirs: src
+  ghc-options: -Wall 
   dependencies:
     - optparse-applicative  
     - ansi-terminal
     - typelits-witnesses
     - comonad
     - stm
+    - mtl
     - OpenAL
     - ALUT
 

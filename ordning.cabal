@@ -2,17 +2,17 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 62bff7bb5f10ab459053eaca460aa601de403864bfc6618f4c21f4f5f5f03751
+-- hash: 940750ac8347d6214f973547b3bce4f787c1ff6af4f886ddb266539be58bced3
 
 name:           ordning
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/mhcurylo/ordning#readme>
 homepage:       https://github.com/mhcurylo/ordning#readme
 bug-reports:    https://github.com/mhcurylo/ordning/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2018 Author name here
-license:        BSD3
+author:         Mateusz Curylo
+maintainer:     mhcurylo@gmail.com
+copyright:      2019 Mateusz Curylo
+license:        MIT
 license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
@@ -41,12 +41,14 @@ library
   hs-source-dirs:
       src
   default-extensions: DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass FlexibleInstances FlexibleContexts GADTs KindSignatures MultiParamTypeClasses ScopedTypeVariables TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators LambdaCase TypeApplications TemplateHaskell
+  ghc-options: -Wall
   build-depends:
       ALUT
     , OpenAL
     , ansi-terminal
     , base >=4.7 && <5
     , comonad
+    , mtl
     , optparse-applicative
     , stm
     , typelits-witnesses

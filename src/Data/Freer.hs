@@ -3,16 +3,13 @@
 
 module Data.Freer
   ( Freer(..)
-  , EffState(..)
+  , EffState
   , put
   , get
   , update
   , runStateEff
   , etaF
   ) where
-
-import Control.Monad
-
 
 -- Freer monad as in http://okmij.org/ftp/Computation/free-monad.html
 (>>>) :: Monad m => (a -> m b) -> (b -> m c) -> (a -> m c)

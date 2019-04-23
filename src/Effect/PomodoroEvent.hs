@@ -4,11 +4,6 @@ module Effect.PomodoroEvent where
 import Pomodoro.Pomodoro
 import Display.Pomodoro
 import Display.System
-import Control.Concurrent
-import Control.Arrow
-import Control.Monad
-import Control.Monad
-import Control.Monad.IO.Class
 import Sound.ALUT
 
 ignore :: IO ()
@@ -27,7 +22,7 @@ sound _ = ignore
 
 runPomodoroEffects :: [PomodoroEvent] -> IO ()
 runPomodoroEffects pe = do
-  sequence $ [displayOnChange, sound] <*> pe
+  _ <- sequence $ [displayOnChange, sound] <*> pe
   return ()
 
 playSound :: [SoundDataSource a] -> IO ()
