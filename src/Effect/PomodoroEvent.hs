@@ -1,17 +1,17 @@
+module Effect.PomodoroEvent
+  ( runPomodoroEffects
+  ) where
 
-module Effect.PomodoroEvent where
-
-import Pomodoro.Pomodoro
 import Display.Pomodoro
 import Display.System
+import Pomodoro.Pomodoro
 import Sound.ALUT
 
 ignore :: IO ()
 ignore = return ()
 
 displayOnChange :: PomodoroEvent -> IO ()
-displayOnChange (Change _ state) = do
-  putStrLn $ clrscr <> displaySomeState state
+displayOnChange (Change _ state) = putStrLn $ clrscr <> displaySomeState state
 displayOnChange _ = ignore
 
 sound :: PomodoroEvent -> IO ()
@@ -21,13 +21,11 @@ sound (Change HasFinished _) = playSound [Sine 380 0 0.5, Sine 280 0 0.5]
 sound _ = ignore
 
 runPomodoroEffects :: [PomodoroEvent] -> IO ()
-runPomodoroEffects pe = do
-  _ <- sequence $ [displayOnChange, sound] <*> pe
-  return ()
+runPomodoroEffects = sequence_ . ([displayOnChange, sound] <*>)
 
 playSound :: [SoundDataSource a] -> IO ()
 playSound sounds = do
-    buffers <- sequence (fmap createBuffer sounds) 
-    [source] <- genObjectNames 1
-    queueBuffers source buffers 
-    play [source]
+  buffers <- traverse createBuffer sounds
+  [source] <- genObjectNames 1
+  queueBuffers source buffers
+  play [source]

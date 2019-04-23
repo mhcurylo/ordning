@@ -1,23 +1,20 @@
-{-# Language GeneralizedNewtypeDeriving #-}
-{-# Language GADTs #-}
-
 module Pomodoro where
 
-import Control.Monad
-import Display.System
-import System.IO
 import Control.Concurrent
-import Control.Monad.STM
 import Control.Concurrent.STM.TChan
 import Control.Exception
-import Pomodoro.Pomodoro
-import Display.Pomodoro
-import Effect.PomodoroEvent
-import Sound.ALUT
+import Control.Monad
+import Control.Monad.STM
 import Control.Monad.State.Strict
+import Display.Pomodoro
+import Display.System
+import Effect.PomodoroEvent
+import Pomodoro.Pomodoro
+import Sound.ALUT
+import System.IO
 
 setUp :: IO Device
-setUp = do 
+setUp = do
   (Just device) <- openDevice Nothing
   (Just context) <- createContext device []
   currentContext $= Just context
@@ -26,22 +23,29 @@ setUp = do
 cleanUp :: Device -> IO ()
 cleanUp device = do
   _ <- closeDevice device
-  putStrLn $ reset <> clrscr <> "Bye!"
+  putStrLn $ clrscr <> "Bye!" <> reset
 
 pomodoroIO :: IO ()
-pomodoroIO = withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ -> 
-  bracket setUp cleanUp $ \_ ->
-    case mkPomodoroConf 1500 300 900 of
-      Just config -> do
-        cmds <- createCommandStream
-        let someActs = someActivities config
-        let current = withSomeActivities someActs (displaySomeState . toSomeState . currentActivity)
-        putStrLn $ clrscr <> current
-        withSomeActivities someActs (eventLoop cmds)
-      Nothing -> do
-        putStrLn "Incorrect configuration"
+pomodoroIO =
+  withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ ->
+    bracket setUp cleanUp $ \_ ->
+      case mkPomodoroConf 1500 300 900 of
+        Just config -> do
+          cmds <- createCommandStream
+          let someActs = someActivities config
+          let current =
+                withSomeActivities
+                  someActs
+                  (displaySomeState . toSomeState . currentActivity)
+          putStrLn $ clrscr <> current
+          withSomeActivities someActs (eventLoop cmds)
+        Nothing -> putStrLn "Incorrect configuration"
 
-eventLoop :: Pomodoros p s l => TChan (Maybe PomodoroCommand) -> Activities p s l -> IO ()
+eventLoop ::
+     Pomodoros p s l
+  => TChan (Maybe PomodoroCommand)
+  -> Activities p s l
+  -> IO ()
 eventLoop cmdT st = do
   cmd <- atomically $ readTChan cmdT
   case cmd of
@@ -55,16 +59,28 @@ createCommandStream :: IO (TChan (Maybe PomodoroCommand))
 createCommandStream = do
   hSetBuffering stdin NoBuffering
   putStrLn noblinking
-  chan <- atomically $ newTChan
-  _ <- forkIO $ forever $ do
-    threadDelay 1000000
-    atomically $ do
-      writeTChan chan $ Just Advance
-  _ <- forkIO $ forever $ do
-    c <- getChar
-    case lookup c table of
-      (Just cmd) -> atomically $ writeTChan chan cmd
-      Nothing -> return ()
+  chan <- atomically newTChan
+  _ <-
+    forkIO $
+    forever $ do
+      threadDelay 1000000
+      atomically $ writeTChan chan $ Just Advance
+  _ <-
+    forkIO $
+    forever $ do
+      c <- getChar
+      case lookup c table of
+        (Just cmd) -> atomically $ writeTChan chan cmd
+        Nothing -> return ()
   return chan
   where
-    table = ('q', Nothing) : (fmap (fmap Just) $ [('l', Next),('h', Previous), ('j', Restart), ('k', Start), ('f', Finish), ('a', Abandon)])
+    table =
+      ('q', Nothing) :
+      (fmap Just <$>
+       [ ('l', Next)
+       , ('h', Previous)
+       , ('j', Restart)
+       , ('k', Start)
+       , ('f', Finish)
+       , ('a', Abandon)
+       ])

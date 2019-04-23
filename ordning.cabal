@@ -2,11 +2,13 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1c7e1a51792138da6e4058b865ddbe0f508923091a7e597d67adcc70f57ad532
+-- hash: ba6173f4816d24b477ddabcf039b93a748385fb0065580b1efcf5b8eb3243913
 
 name:           ordning
 version:        0.1.0.0
+synopsis:       Terminal pomodoro timer with sound
 description:    Please see the README on GitHub at <https://github.com/mhcurylo/ordning#readme>
+category:       Productivity tool
 homepage:       https://github.com/mhcurylo/ordning#readme
 bug-reports:    https://github.com/mhcurylo/ordning/issues
 author:         Mateusz Curylo
@@ -39,7 +41,7 @@ library
       Paths_ordning
   hs-source-dirs:
       src
-  default-extensions: DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass FlexibleInstances FlexibleContexts GADTs KindSignatures MultiParamTypeClasses ScopedTypeVariables TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators LambdaCase TypeApplications TemplateHaskell
+  default-extensions: AllowAmbiguousTypes DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass EmptyCase FlexibleInstances FlexibleContexts GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures MultiParamTypeClasses RankNTypes ScopedTypeVariables StandaloneDeriving TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators UndecidableInstances LambdaCase TypeApplications TemplateHaskell
   ghc-options: -Wall
   build-depends:
       ALUT
@@ -59,7 +61,7 @@ executable ordning
       Paths_ordning
   hs-source-dirs:
       app
-  default-extensions: DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass FlexibleInstances FlexibleContexts GADTs KindSignatures MultiParamTypeClasses ScopedTypeVariables TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators LambdaCase TypeApplications TemplateHaskell
+  default-extensions: AllowAmbiguousTypes DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass EmptyCase FlexibleInstances FlexibleContexts GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures MultiParamTypeClasses RankNTypes ScopedTypeVariables StandaloneDeriving TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators UndecidableInstances LambdaCase TypeApplications TemplateHaskell
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
@@ -73,7 +75,7 @@ test-suite ordning-test
       Paths_ordning
   hs-source-dirs:
       test
-  default-extensions: DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass FlexibleInstances FlexibleContexts GADTs KindSignatures MultiParamTypeClasses ScopedTypeVariables TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators LambdaCase TypeApplications TemplateHaskell
+  default-extensions: AllowAmbiguousTypes DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass EmptyCase FlexibleInstances FlexibleContexts GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures MultiParamTypeClasses RankNTypes ScopedTypeVariables StandaloneDeriving TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators UndecidableInstances LambdaCase TypeApplications TemplateHaskell
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck

@@ -11,28 +11,35 @@ extra-source-files:
 - ChangeLog.md
 
 default-extensions: 
+- AllowAmbiguousTypes 
 - DataKinds
 - DefaultSignatures
 - DeriveGeneric
 - DeriveAnyClass
+- EmptyCase 
 - FlexibleInstances
 - FlexibleContexts
 - GADTs
+- GeneralizedNewtypeDeriving 
+- InstanceSigs 
 - KindSignatures
 - MultiParamTypeClasses
+- RankNTypes 
 - ScopedTypeVariables
+- StandaloneDeriving 
 - TypeApplications
 - TypeFamilies
 - TypeFamilyDependencies
 - TypeInType
 - TypeOperators
+- UndecidableInstances 
 - LambdaCase
 - TypeApplications
 - TemplateHaskell
 #
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+synopsis: Terminal pomodoro timer with sound 
+category: Productivity tool
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is

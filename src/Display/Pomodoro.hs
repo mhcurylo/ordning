@@ -1,14 +1,5 @@
-{-# Language EmptyCase #-}
-{-# Language UndecidableInstances #-}
-{-# Language StandaloneDeriving #-}
-{-# Language InstanceSigs #-}
-{-# Language ScopedTypeVariables #-}
-{-# Language AllowAmbiguousTypes #-}
-{-# Language TypeInType #-}
-{-# Language RankNTypes #-}
-
-module Display.Pomodoro (
-    displaySomeState
+module Display.Pomodoro
+  ( displaySomeState
   ) where
 
 import Display.System
@@ -21,4 +12,5 @@ displayActivityType ShortBrake = "Short brake"
 displayActivityType LongBrake = "Long brake"
 
 displaySomeState :: SomeState -> String
-displaySomeState (SomeState a t) = displayActivityType a <> nl <> displaySomeTimer t
+displaySomeState (SomeState a t) =
+  displayActivityType a <> nl <> displaySomeTimer t

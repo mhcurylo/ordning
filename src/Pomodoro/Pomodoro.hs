@@ -1,22 +1,10 @@
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE EmptyCase #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE RankNTypes #-}
-
 module Pomodoro.Pomodoro where
 
 import Data.Tape
 import Pomodoro.Timer
 
-import Data.Proxy
 import Control.Monad.State
+import Data.Proxy
 
 class (TimerValue p, TimerValue s, TimerValue l) =>
       Pomodoros p s l
@@ -146,14 +134,18 @@ illegal ::
   -> m [PomodoroEvent]
 illegal c = return [Illegal c]
 
-getCurrentActivity :: (MonadState (Activities p s l) m, Pomodoros p s l) => m (Activity p s l)
-getCurrentActivity = fmap currentActivity get
+getCurrentActivity ::
+     (MonadState (Activities p s l) m, Pomodoros p s l) => m (Activity p s l)
+getCurrentActivity = gets currentActivity
 
-putActivity :: (MonadState (Activities p s l) m, Pomodoros p s l) => Activity p s l -> m ()
-putActivity act = modify (\s -> swapActivity act s)
+putActivity ::
+     (MonadState (Activities p s l) m, Pomodoros p s l)
+  => Activity p s l
+  -> m ()
+putActivity act = modify (swapActivity act)
 
 forceStartProgress ::
-     forall p s l m . (MonadState (Activities p s l) m, Pomodoros p s l)
+     forall p s l m. (MonadState (Activities p s l) m, Pomodoros p s l)
   => m [PomodoroEvent]
 forceStartProgress = do
   act <- getCurrentActivity
@@ -169,7 +161,7 @@ forceStartProgress = do
         np = Activity a $ startProgress a
 
 changeActivity ::
-     forall p s l m . (MonadState (Activities p s l) m, Pomodoros p s l)
+     forall p s l m. (MonadState (Activities p s l) m, Pomodoros p s l)
   => (Activities p s l -> Activities p s l)
   -> PomodoroCommand
   -> m [PomodoroEvent]
@@ -185,7 +177,7 @@ changeActivity f pc = do
             np = currentActivity ns
 
 runCommand ::
-     forall p s l m . (MonadState (Activities p s l) m, Pomodoros p s l)
+     forall p s l m. (MonadState (Activities p s l) m, Pomodoros p s l)
   => PomodoroCommand
   -> m [PomodoroEvent]
 runCommand Next = changeActivity next Next
