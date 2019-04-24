@@ -17,6 +17,7 @@ import System.IO
 
 setUp :: IO Device
 setUp = do
+  putStrLn hideCursor
   (Just device) <- openDevice Nothing
   (Just context) <- createContext device []
   currentContext $= Just context
@@ -25,6 +26,7 @@ setUp = do
 cleanUp :: Device -> IO ()
 cleanUp device = do
   _ <- closeDevice device
+  putStrLn displayCursor
   putStrLn $ "Bye!" <> reset
 
 pomodoroIO :: IO ()
@@ -66,7 +68,6 @@ eventLoop sound cmdT st = do
 createCommandStream :: IO (TChan (Maybe PomodoroCommand))
 createCommandStream = do
   hSetBuffering stdin NoBuffering
-  putStrLn noblinking
   chan <- atomically newTChan
   _ <-
     forkIO $

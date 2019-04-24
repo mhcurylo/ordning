@@ -1,10 +1,10 @@
 module Data.Tape
-  ( Tape
-  , fromLists
-  , swapValue
-  , value
+  ( fromLists
   , left
   , right
+  , swapValue
+  , Tape
+  , value
   ) where
 
 import Control.Comonad

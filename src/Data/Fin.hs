@@ -1,10 +1,10 @@
 module Data.Fin
-  ( Fin
-  , SomeFin
+  ( SomeFin
+  , Fin
   , fin
-  , predecessor
   , finLimit
   , finToInteger
+  , predecessor
   , showNat
   ) where
 

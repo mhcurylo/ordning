@@ -1,18 +1,18 @@
-module Pomodoro.Pomodoro (
-    Activities(..)
-  , Phase
-  , Pomodoros
-  , PomodoroCommand(..)
-  , PomodoroChangeEvent(..)
-  , PomodoroEvent(..)
+module Pomodoro.Pomodoro
+  ( Activities(..)
   , ActivityType(..)
+  , Phase
+  , PomodoroChangeEvent(..)
+  , PomodoroCommand(..)
+  , PomodoroEvent(..)
+  , Pomodoros
   , SomeState(..)
-  , mkPomodoroConf
-  , someActivities
-  , withSomeActivities
-  , toSomeState
   , currentActivity
+  , mkPomodoroConf
   , runCommand
+  , someActivities
+  , toSomeState
+  , withSomeActivities
   ) where
 
 import Data.Tape

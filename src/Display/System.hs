@@ -21,5 +21,8 @@ green = "\x1b[31m"
 red :: String
 red = "\x1b[32m"
 
-noblinking :: String
-noblinking = "\ESC[?25l"
+hideCursor :: String
+hideCursor = "\ESC[?25l"
+
+displayCursor :: String
+displayCursor = "\ESC[?25h"

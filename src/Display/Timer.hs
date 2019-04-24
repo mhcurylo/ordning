@@ -1,6 +1,6 @@
 module Display.Timer
-  ( displayTimer
-  , displaySomeTimer
+  ( displaySomeTimer
+  , displayTimer
   ) where
 
 import Display.System
@@ -43,9 +43,9 @@ surroundAt n a b (x:xs) = x : surroundAt (n - 1) a b xs
 
 around :: At -> Padding -> Max -> String
 around a p m =
-  (<> reset <> noblinking) $
+  (<> reset <> hideCursor) $
   (green <>) $
-  surroundAt p (bright <> red) (reset <> noblinking <> green) .
+  surroundAt p (bright <> red) (reset <> hideCursor <> green) .
   leftPad (p * 2 + 1) ' ' .
   drop (fromInteger $ a - p) . take (fromInteger $ p + a + 1) $
   ordningTape m

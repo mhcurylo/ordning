@@ -1,16 +1,16 @@
 module Pomodoro.Timer
-  ( Timer
-  , TimerValue
+  ( SomeTimer
   , SomeTimerValue
-  , SomeTimer
-  , timer
+  , Timer
+  , TimerValue
   , advance
   , finishedTimer
-  , timerValue
-  , timerMax
   , someTimer
-  , withSomeTimer
   , someTimerValue
+  , timer
+  , timerMax
+  , timerValue
+  , withSomeTimer
   , withSomeTimerValue
   ) where
 
