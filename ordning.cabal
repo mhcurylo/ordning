@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 38d73e1aa2799c4e109b2049b14f8ec80903f3e9544905f1371c235bfa3b0a29
+-- hash: ff19f7a65feab3410d91a0bf18d8a547889fc50c9e83ab8a99b32f7abd66ed57
 
 name:           ordning
 version:        0.1.0.0
@@ -73,6 +73,7 @@ test-suite ordning-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Spook
       Paths_ordning
   hs-source-dirs:
       test

@@ -1,5 +1,5 @@
 module Pomodoro.Pomodoro
-  ( Activities(..)
+  ( Activities
   , ActivityType(..)
   , Phase
   , PomodoroChangeEvent(..)
@@ -46,19 +46,10 @@ data SActivityType (a :: ActivityType) where
   SShortBreak :: SActivityType 'ShortBreak
   SLongBreak :: SActivityType 'LongBreak
 
-data SomeSActivityType where
-  SomeSActivityType :: SActivityType a -> SomeSActivityType
-
 fromSActivityType :: SActivityType a -> ActivityType
 fromSActivityType SPomodoro = Pomodoro
 fromSActivityType SShortBreak = ShortBreak
 fromSActivityType SLongBreak = LongBreak
-
-withSomeSActivityType ::
-     SomeSActivityType
-  -> (forall (a :: ActivityType). SActivityType a -> r)
-  -> r
-withSomeSActivityType (SomeSActivityType a) f = f a
 
 type family ActivityTimer (a :: ActivityType) (p :: Nat) (s :: Nat) (l :: Nat) :: Nat where
   ActivityTimer 'Pomodoro p s l = p
@@ -165,6 +156,13 @@ illegal ::
   -> m [PomodoroEvent]
 illegal c = return [Illegal c]
 
+resolve ::
+     (MonadState (Activities p s l) m, Pomodoros p s l)
+  => PomodoroChangeEvent
+  -> Activity p s l
+  -> m [PomodoroEvent]
+resolve pe act = putActivity act >> return [Change pe (toSomeState act)]
+
 getCurrentActivity ::
      (MonadState (Activities p s l) m, Pomodoros p s l) => m (Activity p s l)
 getCurrentActivity = gets currentActivity
@@ -182,7 +180,7 @@ forceStartProgress = do
   act <- getCurrentActivity
   open act
   where
-    startProgress :: SActivityType a -> Activity p s l
+    startProgress :: forall a. SActivityType a -> Activity p s l
     startProgress SPomodoro = Activity SPomodoro InProgress $ timer @p
     startProgress SShortBreak = Activity SShortBreak InProgress $ timer @s
     startProgress SLongBreak = Activity SLongBreak InProgress $ timer @l
@@ -190,7 +188,7 @@ forceStartProgress = do
       putActivity np
       return [Change HasStarted (toSomeState np)]
       where
-        np = withSomeSActivityType (SomeSActivityType a) startProgress
+        np = startProgress a
 
 changeActivity ::
      forall p s l m. (MonadState (Activities p s l) m, Pomodoros p s l)
@@ -214,43 +212,29 @@ runCommand ::
   -> m [PomodoroEvent]
 runCommand Next = changeActivity next Next
 runCommand Previous = changeActivity previous Previous
-runCommand Advance = do
-  p <- getCurrentActivity
-  case p of
-    (Activity a InProgress t) -> do
-      putActivity np
-      return [Change act (toSomeState np)]
+runCommand Advance =
+  getCurrentActivity >>= \case
+    (Activity a InProgress t) -> resolve act np
       where (act, np) =
               case advance t of
                 (Just nt) -> (HasAdvanced, Activity a InProgress nt)
                 Nothing -> (HasFinished, Activity a Finished t)
     _ -> return []
-runCommand Start = do
-  act <- getCurrentActivity
-  case act of
+runCommand Start =
+  getCurrentActivity >>= \case
     (Activity _ Ready _) -> forceStartProgress
     _ -> illegal Start
-runCommand Restart = do
-  act <- getCurrentActivity
-  case act of
+runCommand Restart =
+  getCurrentActivity >>= \case
     (Activity _ Abandoned _) -> forceStartProgress
     _ -> illegal Restart
-runCommand Finish = do
-  p <- getCurrentActivity
-  case p of
-    (Activity a InProgress t) -> do
-      putActivity np
-      return [Change HasFinished (toSomeState np)]
-      where np = Activity a Finished t
+runCommand Finish =
+  getCurrentActivity >>= \case
+    (Activity a InProgress t) -> resolve HasFinished $ Activity a Finished t
     _ -> illegal Finish
-runCommand Abandon = do
-  s <- get
-  let p = currentActivity s
-  case p of
-    (Activity a InProgress t) -> do
-      put (swapActivity np s)
-      return [Change IsAbandoned (toSomeState np)]
-      where np = Activity a Abandoned t
+runCommand Abandon =
+  getCurrentActivity >>= \case
+    (Activity a InProgress t) -> resolve IsAbandoned $ Activity a Abandoned t
     _ -> illegal Abandon
 
 someActivities :: PomodoroConf -> SomeActivities

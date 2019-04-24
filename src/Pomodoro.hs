@@ -26,8 +26,7 @@ setUp = do
 cleanUp :: Device -> IO ()
 cleanUp device = do
   _ <- closeDevice device
-  putStrLn displayCursor
-  putStrLn $ "Bye!" <> reset
+  putStrLn $ "Bye!" <> displayCursor <> reset 
 
 pomodoroIO :: IO ()
 pomodoroIO =
