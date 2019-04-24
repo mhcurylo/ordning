@@ -1,10 +1,26 @@
-module Pomodoro.Pomodoro where
+module Pomodoro.Pomodoro (
+    Activities(..)
+  , Phase
+  , Pomodoros
+  , PomodoroCommand(..)
+  , PomodoroChangeEvent(..)
+  , PomodoroEvent(..)
+  , ActivityType(..)
+  , SomeState(..)
+  , mkPomodoroConf
+  , someActivities
+  , withSomeActivities
+  , toSomeState
+  , currentActivity
+  , runCommand
+  ) where
 
 import Data.Tape
 import Pomodoro.Timer
 
 import Control.Monad.State
 import Data.Proxy
+import GHC.TypeLits
 
 class (TimerValue p, TimerValue s, TimerValue l) =>
       Pomodoros p s l
@@ -12,11 +28,12 @@ class (TimerValue p, TimerValue s, TimerValue l) =>
 
 instance (TimerValue p, TimerValue s, TimerValue l) => Pomodoros p s l
 
-data Phase where
-  Ready :: Phase
-  Finished :: Phase
-  Abandoned :: TimerValue p => Timer p -> Phase
-  InProgress :: TimerValue p => Timer p -> Phase
+data Phase
+  = Ready
+  | Finished
+  | Abandoned
+  | InProgress
+  deriving (Show, Eq)
 
 data ActivityType
   = Pomodoro
@@ -24,8 +41,37 @@ data ActivityType
   | ShortBreak
   deriving (Show, Eq)
 
+data SActivityType (a :: ActivityType) where
+  SPomodoro :: SActivityType 'Pomodoro
+  SShortBreak :: SActivityType 'ShortBreak
+  SLongBreak :: SActivityType 'LongBreak
+
+data SomeSActivityType where
+  SomeSActivityType :: SActivityType a -> SomeSActivityType
+
+fromSActivityType :: SActivityType a -> ActivityType
+fromSActivityType SPomodoro = Pomodoro
+fromSActivityType SShortBreak = ShortBreak
+fromSActivityType SLongBreak = LongBreak
+
+withSomeSActivityType ::
+     SomeSActivityType
+  -> (forall (a :: ActivityType). SActivityType a -> r)
+  -> r
+withSomeSActivityType (SomeSActivityType a) f = f a
+
+type family ActivityTimer (a :: ActivityType) (p :: Nat) (s :: Nat) (l :: Nat) :: Nat where
+  ActivityTimer 'Pomodoro p s l = p
+  ActivityTimer 'ShortBreak p s l = s
+  ActivityTimer 'LongBreak p s l = l
+
 data Activity p s l where
-  Activity :: Pomodoros p s l => ActivityType -> Phase -> Activity p s l
+  Activity
+    :: (Pomodoros p s l, t ~ ActivityTimer a p s l, TimerValue t)
+    => (SActivityType a)
+    -> Phase
+    -> Timer t
+    -> Activity p s l
 
 data PomodoroConf where
   PomodoroConf
@@ -43,6 +89,7 @@ data PomodoroCommand
 
 data SomeState = SomeState
   { someStateActivityType :: ActivityType
+  , someStatePhase :: Phase
   , someStateTimer :: SomeTimer
   }
 
@@ -62,20 +109,7 @@ toSomeState ::
      forall p s l. Pomodoros p s l
   => Activity p s l
   -> SomeState
-toSomeState (Activity Pomodoro Ready) =
-  SomeState Pomodoro $ someTimer $ timer @p
-toSomeState (Activity ShortBreak Ready) =
-  SomeState ShortBreak $ someTimer $ timer @s
-toSomeState (Activity LongBreak Ready) =
-  SomeState LongBreak $ someTimer $ timer @l
-toSomeState (Activity Pomodoro Finished) =
-  SomeState Pomodoro $ someTimer $ finishedTimer @p
-toSomeState (Activity ShortBreak Finished) =
-  SomeState ShortBreak $ someTimer $ finishedTimer @s
-toSomeState (Activity LongBreak Finished) =
-  SomeState LongBreak $ someTimer $ finishedTimer @l
-toSomeState (Activity a (Abandoned t)) = SomeState a $ someTimer t
-toSomeState (Activity a (InProgress t)) = SomeState a $ someTimer t
+toSomeState (Activity pa p t) = SomeState (fromSActivityType pa) p $ someTimer t
 
 data Activities p s l where
   Activities :: Pomodoros p s l => Tape (Activity p s l) -> Activities p s l
@@ -88,15 +122,6 @@ next (Activities tape) = Activities (right tape)
 
 currentActivity :: Activities p s l -> Activity p s l
 currentActivity (Activities tape) = value tape
-
-modifyActivity ::
-     Pomodoros p s l
-  => (Activity p s l -> Activity p s l)
-  -> Activities p s l
-  -> Activities p s l
-modifyActivity f (Activities tape) = Activities ntape
-  where
-    ntape = swapValue (f . value $ tape) tape
 
 swapActivity :: Activity p s l -> Activities p s l -> Activities p s l
 swapActivity act (Activities tape) = Activities $ swapValue act tape
@@ -120,13 +145,19 @@ pq ::
      forall p s l. Pomodoros p s l
   => [Activity p s l]
 pq =
-  [ Activity Pomodoro Ready
-  , Activity ShortBreak Ready
-  , Activity Pomodoro Ready
-  , Activity ShortBreak Ready
-  , Activity Pomodoro Ready
-  , Activity LongBreak Ready
+  [ pomodoro
+  , shortBreak
+  , pomodoro
+  , shortBreak
+  , pomodoro
+  , shortBreak
+  , pomodoro
+  , longBreak
   ]
+  where
+    pomodoro = Activity SPomodoro Ready (timer @p)
+    shortBreak = Activity SShortBreak Ready (timer @s)
+    longBreak = Activity SLongBreak Ready (timer @l)
 
 illegal ::
      (MonadState (Activities p s l) m, Pomodoros p s l)
@@ -151,14 +182,15 @@ forceStartProgress = do
   act <- getCurrentActivity
   open act
   where
-    startProgress Pomodoro = InProgress $ timer @p
-    startProgress LongBreak = InProgress $ timer @l
-    startProgress ShortBreak = InProgress $ timer @s
-    open (Activity a _) = do
+    startProgress :: SActivityType a -> Activity p s l
+    startProgress SPomodoro = Activity SPomodoro InProgress $ timer @p
+    startProgress SShortBreak = Activity SShortBreak InProgress $ timer @s
+    startProgress SLongBreak = Activity SLongBreak InProgress $ timer @l
+    open (Activity a _ _) = do
       putActivity np
       return [Change HasStarted (toSomeState np)]
       where
-        np = Activity a $ startProgress a
+        np = withSomeSActivityType (SomeSActivityType a) startProgress
 
 changeActivity ::
      forall p s l m. (MonadState (Activities p s l) m, Pomodoros p s l)
@@ -169,7 +201,7 @@ changeActivity f pc = do
   s <- get
   let p = currentActivity s
   case p of
-    (Activity _ (InProgress _)) -> illegal pc
+    (Activity _ InProgress _) -> illegal pc
     _ -> do
       put ns
       return [Change IsSwapped (toSomeState np)]
@@ -185,52 +217,45 @@ runCommand Previous = changeActivity previous Previous
 runCommand Advance = do
   p <- getCurrentActivity
   case p of
-    (Activity a (InProgress t)) -> do
+    (Activity a InProgress t) -> do
       putActivity np
       return [Change act (toSomeState np)]
       where (act, np) =
               case advance t of
-                (Just nt) -> (HasAdvanced, Activity a $ InProgress nt)
-                Nothing -> (HasFinished, Activity a Finished)
+                (Just nt) -> (HasAdvanced, Activity a InProgress nt)
+                Nothing -> (HasFinished, Activity a Finished t)
     _ -> return []
 runCommand Start = do
   act <- getCurrentActivity
   case act of
-    (Activity _ Ready) -> forceStartProgress
+    (Activity _ Ready _) -> forceStartProgress
     _ -> illegal Start
 runCommand Restart = do
   act <- getCurrentActivity
   case act of
-    (Activity _ (Abandoned _)) -> forceStartProgress
+    (Activity _ Abandoned _) -> forceStartProgress
     _ -> illegal Restart
 runCommand Finish = do
   p <- getCurrentActivity
   case p of
-    (Activity a (InProgress _)) -> do
+    (Activity a InProgress t) -> do
       putActivity np
       return [Change HasFinished (toSomeState np)]
-      where np = Activity a Finished
+      where np = Activity a Finished t
     _ -> illegal Finish
 runCommand Abandon = do
   s <- get
   let p = currentActivity s
   case p of
-    (Activity a (InProgress t)) -> do
+    (Activity a InProgress t) -> do
       put (swapActivity np s)
       return [Change IsAbandoned (toSomeState np)]
-      where np = Activity a (Abandoned t)
+      where np = Activity a Abandoned t
     _ -> illegal Abandon
 
 someActivities :: PomodoroConf -> SomeActivities
 someActivities (PomodoroConf (Proxy :: Proxy p) (Proxy :: Proxy s) (Proxy :: Proxy l)) =
   SomeActivities $ pomodoroTape @p @s @l
-
-defaultConf :: PomodoroConf
-defaultConf =
-  PomodoroConf
-    (Proxy :: (Proxy 1500))
-    (Proxy :: (Proxy 300))
-    (Proxy :: (Proxy 900))
 
 mkPomodoroConfWithSomeTimerValues ::
      SomeTimerValue -> SomeTimerValue -> SomeTimerValue -> PomodoroConf
