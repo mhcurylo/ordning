@@ -6,7 +6,7 @@ import Control.Exception
 import Control.Monad
 import Control.Monad.STM
 import Control.Monad.State.Strict
-import Display.Pomodoro (displaySomeState)
+import Display.Pomodoro 
 import Display.System
 import Effect.PomodoroEvent
 import Options.Applicative
@@ -18,7 +18,6 @@ import Pomodoro.Pomodoro
   , currentActivity
   , mkSomeActivities
   , runCommand
-  , toSomeState
   , withSomeActivities
   )
 import Sound.ALUT
@@ -52,7 +51,7 @@ pomodoroIO =
           let current =
                 withSomeActivities
                   someActs
-                  (displaySomeState . toSomeState . currentActivity)
+                  (displayActivity . currentActivity)
           putStrLn $ clrscr <> current
           withSomeActivities someActs (eventLoop (not quiet) cmds)
         Nothing -> putStrLn "Incorrect configuration"

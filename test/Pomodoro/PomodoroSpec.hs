@@ -3,7 +3,6 @@ module Pomodoro.PomodoroSpec where
 import Test.Hspec
 
 import Control.Monad.State
-import Data.List
 import Pomodoro.Pomodoro
 
 fixtureActivities :: Activities 1 1 1

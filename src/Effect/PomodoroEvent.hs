@@ -11,7 +11,7 @@ ignore :: IO ()
 ignore = return ()
 
 displayOnChange :: PomodoroEvent -> IO ()
-displayOnChange (Change _ state) = putStrLn $ clrscr <> displaySomeState state
+displayOnChange (Change _ act) = putStrLn $ clrscr <> displayActivity act
 displayOnChange _ = ignore
 
 soundEffect :: Bool -> PomodoroEvent -> IO ()

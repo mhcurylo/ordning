@@ -7,14 +7,13 @@ module Pomodoro.Pomodoro
   , PomodoroCommand(..)
   , PomodoroEvent(..)
   , Pomodoros
-  , SomeState(..)
   , activities
   , activityActivityType
   , activityPhase
+  , activityTimer
   , currentActivity
   , mkSomeActivities
   , runCommand
-  , toSomeState
   , withSomeActivities
   ) where
 
@@ -62,14 +61,14 @@ fromSActivityType SPomodoro = Pomodoro
 fromSActivityType SShortBreak = ShortBreak
 fromSActivityType SLongBreak = LongBreak
 
-type family ActivityTimer (a :: ActivityType) (p :: Nat) (s :: Nat) (l :: Nat) :: Nat where
-  ActivityTimer 'Pomodoro p s l = p
-  ActivityTimer 'ShortBreak p s l = s
-  ActivityTimer 'LongBreak p s l = l
+type family ActivityTime (a :: ActivityType) (p :: Nat) (s :: Nat) (l :: Nat) :: Nat where
+  ActivityTime 'Pomodoro p s l = p
+  ActivityTime 'ShortBreak p s l = s
+  ActivityTime 'LongBreak p s l = l
 
 data Activity p s l where
   Activity
-    :: (Pomodoros p s l, t ~ ActivityTimer a p s l, TimerValue t)
+    :: (Pomodoros p s l, t ~ ActivityTime a p s l, TimerValue t)
     => SActivityType a
     -> Phase
     -> Timer t
@@ -85,10 +84,12 @@ activityActivityType (Activity a _ _) = fromSActivityType a
 activityPhase :: Pomodoros p s l => Activity p s l -> Phase
 activityPhase (Activity _ p _) = p
 
-instance Eq (Activity p s l) where
-  (Activity a1 p1 t1) == (Activity a2 p2 t3) = 
-    (fromSActivityType a1, p1, someTimer t1) == (fromSActivityType a2, p2, someTimer t3)
+activityTimer :: Pomodoros p s l => Activity p s l -> SomeTimer
+activityTimer (Activity _ _ t) = someTimer t
 
+instance Eq (Activity p s l) where
+  (Activity a1 p1 t1) == (Activity a2 p2 t2) =
+    (fromSActivityType a1, p1) == (fromSActivityType a2, p2) && timerEq t1 t2
 
 data PomodoroConf where
   PomodoroConf
@@ -104,12 +105,6 @@ data PomodoroCommand
   | Advance
   deriving (Show, Eq)
 
-data SomeState = SomeState
-  { someStateActivityType :: ActivityType
-  , someStatePhase :: Phase
-  , someStateTimer :: SomeTimer
-  }
-
 data PomodoroChangeEvent
   = HasStarted
   | HasAdvanced
@@ -117,16 +112,10 @@ data PomodoroChangeEvent
   | IsAbandoned
   | IsSwapped
 
-data PomodoroEvent
-  = Illegal { illegalCommand :: PomodoroCommand }
-  | Change { changeEvent :: PomodoroChangeEvent
-           , changeState :: SomeState }
-
-toSomeState ::
-     forall p s l. Pomodoros p s l
-  => Activity p s l
-  -> SomeState
-toSomeState (Activity pa p t) = SomeState (fromSActivityType pa) p $ someTimer t
+data PomodoroEvent where
+  Illegal :: PomodoroCommand -> PomodoroEvent
+  Change
+    :: Pomodoros p s l => PomodoroChangeEvent -> Activity p s l -> PomodoroEvent
 
 data Activities p s l where
   Activities :: Pomodoros p s l => Tape (Activity p s l) -> Activities p s l
@@ -187,7 +176,7 @@ resolve ::
   => PomodoroChangeEvent
   -> Activity p s l
   -> m [PomodoroEvent]
-resolve pe act = putActivity act >> return [Change pe (toSomeState act)]
+resolve pe act = putActivity act >> return [Change pe act]
 
 getCurrentActivity ::
      (MonadState (Activities p s l) m, Pomodoros p s l) => m (Activity p s l)
@@ -222,7 +211,7 @@ changeActivity f pc = do
     (Activity _ InProgress _) -> illegal pc
     _ -> do
       put ns
-      return [Change IsSwapped (toSomeState np)]
+      return [Change IsSwapped np]
       where ns = f s
             np = currentActivity ns
 

@@ -1,6 +1,5 @@
 module Display.Timer
   ( displaySomeTimer
-  , displayTimer
   ) where
 
 import Display.System
