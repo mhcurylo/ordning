@@ -30,6 +30,9 @@ instance KnownNat s => Bounded (Fin s) where
   minBound = MkFin 0
   maxBound = MkFin $ natVal (Proxy @s)
 
+instance KnownNat s => Eq (Fin s) where
+  (MkFin a) == (MkFin b) = a == b
+
 predecessor :: Fin n -> Maybe (Fin n)
 predecessor (MkFin 0) = Nothing
 predecessor (MkFin n) = Just . MkFin $ n - 1

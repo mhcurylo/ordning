@@ -7,20 +7,20 @@ module Pomodoro.Pomodoro
   , PomodoroEvent(..)
   , Pomodoros
   , SomeState(..)
+  , activities
   , currentActivity
-  , mkPomodoroConf
+  , mkSomeActivities
   , runCommand
-  , someActivities
   , toSomeState
   , withSomeActivities
   ) where
 
-import Data.Tape
-import Pomodoro.Timer
-
 import Control.Monad.State
+import Data.List (intersperse)
 import Data.Proxy
+import Data.Tape
 import GHC.TypeLits
+import Pomodoro.Timer
 
 class (TimerValue p, TimerValue s, TimerValue l) =>
       Pomodoros p s l
@@ -46,6 +46,14 @@ data SActivityType (a :: ActivityType) where
   SShortBreak :: SActivityType 'ShortBreak
   SLongBreak :: SActivityType 'LongBreak
 
+instance Show (SActivityType a) where
+  show SPomodoro = "SPomodoro"
+  show SShortBreak = "SShortBreak"
+  show SLongBreak = "SLongBreak"
+
+instance Eq (SActivityType a) where
+  _ == _ = True
+
 fromSActivityType :: SActivityType a -> ActivityType
 fromSActivityType SPomodoro = Pomodoro
 fromSActivityType SShortBreak = ShortBreak
@@ -63,6 +71,14 @@ data Activity p s l where
     -> Phase
     -> Timer t
     -> Activity p s l
+
+instance Show (Activity p s l) where
+  show (Activity a p t) =
+    "Activity " <> (concat $ intersperse ", " [show p, show t, show a])
+
+instance Eq (Activity p s l) where
+  (Activity a1 p1 t1) == (Activity a2 p2 t3) = 
+    (fromSActivityType a1, p1, someTimer t1) == (fromSActivityType a2, p2, someTimer t3)
 
 data PomodoroConf where
   PomodoroConf
@@ -127,10 +143,10 @@ withSomeActivities ::
   -> r
 withSomeActivities (SomeActivities acts) f = f acts
 
-pomodoroTape ::
+activities ::
      forall p s l. Pomodoros p s l
   => Activities p s l
-pomodoroTape = Activities $ fromLists (reverse pq) pq
+activities = Activities $ fromLists (reverse pq) pq
 
 pq ::
      forall p s l. Pomodoros p s l
@@ -176,19 +192,13 @@ putActivity act = modify (swapActivity act)
 forceStartProgress ::
      forall p s l m. (MonadState (Activities p s l) m, Pomodoros p s l)
   => m [PomodoroEvent]
-forceStartProgress = do
-  act <- getCurrentActivity
-  open act
+forceStartProgress = getCurrentActivity >>= open
   where
     startProgress :: forall a. SActivityType a -> Activity p s l
     startProgress SPomodoro = Activity SPomodoro InProgress $ timer @p
     startProgress SShortBreak = Activity SShortBreak InProgress $ timer @s
     startProgress SLongBreak = Activity SLongBreak InProgress $ timer @l
-    open (Activity a _ _) = do
-      putActivity np
-      return [Change HasStarted (toSomeState np)]
-      where
-        np = startProgress a
+    open (Activity a _ _) = resolve HasStarted (startProgress a)
 
 changeActivity ::
      forall p s l m. (MonadState (Activities p s l) m, Pomodoros p s l)
@@ -239,7 +249,7 @@ runCommand Abandon =
 
 someActivities :: PomodoroConf -> SomeActivities
 someActivities (PomodoroConf (Proxy :: Proxy p) (Proxy :: Proxy s) (Proxy :: Proxy l)) =
-  SomeActivities $ pomodoroTape @p @s @l
+  SomeActivities $ activities @p @s @l
 
 mkPomodoroConfWithSomeTimerValues ::
      SomeTimerValue -> SomeTimerValue -> SomeTimerValue -> PomodoroConf
@@ -252,3 +262,7 @@ mkPomodoroConf pInt sInt lInt =
   mkPomodoroConfWithSomeTimerValues <$> someTimerValue pInt <*>
   someTimerValue sInt <*>
   someTimerValue lInt
+
+mkSomeActivities :: Integer -> Integer -> Integer -> Maybe SomeActivities
+mkSomeActivities pInt sInt lInt =
+  someActivities <$> mkPomodoroConf pInt sInt lInt

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ff19f7a65feab3410d91a0bf18d8a547889fc50c9e83ab8a99b32f7abd66ed57
+-- hash: b6e53f912fd68b872d02b9338757b2b6139b6e5c61ed017e0f14ba219a578f6b
 
 name:           ordning
 version:        0.1.0.0
@@ -73,15 +73,15 @@ test-suite ordning-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Spook
+      Pomodoro.PomodoroSpec
       Paths_ordning
   hs-source-dirs:
       test
   default-extensions: AllowAmbiguousTypes DataKinds DefaultSignatures DeriveGeneric DeriveAnyClass EmptyCase FlexibleInstances FlexibleContexts GADTs GeneralizedNewtypeDeriving InstanceSigs KindSignatures MultiParamTypeClasses RankNTypes ScopedTypeVariables StandaloneDeriving TypeApplications TypeFamilies TypeFamilyDependencies TypeInType TypeOperators UndecidableInstances LambdaCase TypeApplications TemplateHaskell
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck
     , base >=4.7 && <5
     , hspec
+    , mtl
     , ordning
   default-language: Haskell2010

@@ -8,6 +8,7 @@ module Pomodoro.Timer
   , someTimer
   , someTimerValue
   , timer
+  , timerEq
   , timerMax
   , timerValue
   , withSomeTimer
@@ -32,10 +33,13 @@ data Timer a =
   MkTimer (Fin a)
 
 data SomeTimer where
-  MkSomeTimer :: (TimerValue a) => Timer a -> SomeTimer
+  SomeTimer :: (TimerValue a) => Timer a -> SomeTimer
+
+instance Eq SomeTimer where
+  (SomeTimer t1) == (SomeTimer t2) = t1 `timerEq` t2
 
 someTimer :: (TimerValue a) => Timer a -> SomeTimer
-someTimer = MkSomeTimer
+someTimer = SomeTimer
 
 data SomeTimerValue where
   MkSomeTimerValue :: (TimerValue a) => Proxy a -> SomeTimerValue
@@ -54,7 +58,7 @@ withSomeTimer ::
   -> (forall a. (TimerValue a) =>
                   Timer a -> r)
   -> r
-withSomeTimer (MkSomeTimer v) f = f v
+withSomeTimer (SomeTimer v) f = f v
 
 withSomeTimerValue ::
      SomeTimerValue
@@ -65,6 +69,12 @@ withSomeTimerValue (MkSomeTimerValue v) f = f v
 
 instance Show (Timer a) where
   show (MkTimer f) = "Timer " ++ show f
+
+instance Eq (Timer a) where
+  (MkTimer a) == (MkTimer b) = a == b
+
+timerEq :: (TimerValue a, TimerValue b) => Timer a -> Timer b -> Bool
+timerEq t1 t2 = timerMax t1 == timerMax t1 && timerValue t1 == timerValue t2
 
 timer ::
      forall a. (TimerValue a)

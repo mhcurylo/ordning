@@ -1,3 +1,1 @@
-module Spec where
-
-main = putStrLn "No spec!"
+{-# OPTIONS_GHC -F -pgmF hspec-discover #-}

@@ -15,9 +15,9 @@ displayOnChange (Change _ state) = putStrLn $ clrscr <> displaySomeState state
 displayOnChange _ = ignore
 
 soundEffect :: Bool -> PomodoroEvent -> IO ()
-soundEffect True (Illegal _) = playSound [Sine 480 0 0.1]
-soundEffect True (Change HasAdvanced _) = playSound [Sine 280 0 0.05]
-soundEffect True (Change HasFinished _) = playSound [Sine 380 0 0.5, Sine 280 0 0.5]
+soundEffect True (Illegal _) = playSound [Sine 260 0 0.1]
+soundEffect True (Change HasAdvanced _) = playSound [Sine 130 0 0.05]
+soundEffect True (Change HasFinished _) = playSound [Sine 523 0 0.5, Sine 587 0 0.5]
 soundEffect _ _ = ignore
 
 runPomodoroEffects :: Bool -> [PomodoroEvent] -> IO ()

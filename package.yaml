@@ -77,11 +77,8 @@ tests:
   ordning-test:
     main:                Spec.hs
     source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
     dependencies:
     - ordning
     - hspec
+    - mtl
     - QuickCheck

@@ -6,12 +6,21 @@ import Control.Exception
 import Control.Monad
 import Control.Monad.STM
 import Control.Monad.State.Strict
-import Display.Pomodoro
+import Display.Pomodoro (displaySomeState)
 import Display.System
 import Effect.PomodoroEvent
 import Options.Applicative
 import Options.Configuration
 import Pomodoro.Pomodoro
+  ( Activities
+  , PomodoroCommand(..)
+  , Pomodoros
+  , currentActivity
+  , mkSomeActivities
+  , runCommand
+  , toSomeState
+  , withSomeActivities
+  )
 import Sound.ALUT
 import System.IO
 
@@ -26,7 +35,7 @@ setUp = do
 cleanUp :: Device -> IO ()
 cleanUp device = do
   _ <- closeDevice device
-  putStrLn $ "Bye!" <> displayCursor <> reset 
+  putStrLn $ "Bye!" <> displayCursor <> reset
 
 pomodoroIO :: IO ()
 pomodoroIO =
@@ -34,13 +43,12 @@ pomodoroIO =
     bracket setUp cleanUp $ \_ -> do
       (Configuration pomodoroDur shortBreakDur longBreakDur quiet) <-
         execParser configurationInfo
-      case mkPomodoroConf
+      case mkSomeActivities
              (pomodoroDur * 60)
              (shortBreakDur * 60)
              (longBreakDur * 60) of
-        Just config -> do
+        Just someActs -> do
           cmds <- createCommandStream
-          let someActs = someActivities config
           let current =
                 withSomeActivities
                   someActs
