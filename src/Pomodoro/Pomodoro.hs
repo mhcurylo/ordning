@@ -1,13 +1,16 @@
 module Pomodoro.Pomodoro
   ( Activities
+  , Activity
   , ActivityType(..)
-  , Phase
+  , Phase(..)
   , PomodoroChangeEvent(..)
   , PomodoroCommand(..)
   , PomodoroEvent(..)
   , Pomodoros
   , SomeState(..)
   , activities
+  , activityActivityType
+  , activityPhase
   , currentActivity
   , mkSomeActivities
   , runCommand
@@ -16,7 +19,7 @@ module Pomodoro.Pomodoro
   ) where
 
 import Control.Monad.State
-import Data.List (intersperse)
+import Data.List (intercalate)
 import Data.Proxy
 import Data.Tape
 import GHC.TypeLits
@@ -67,18 +70,25 @@ type family ActivityTimer (a :: ActivityType) (p :: Nat) (s :: Nat) (l :: Nat) :
 data Activity p s l where
   Activity
     :: (Pomodoros p s l, t ~ ActivityTimer a p s l, TimerValue t)
-    => (SActivityType a)
+    => SActivityType a
     -> Phase
     -> Timer t
     -> Activity p s l
 
 instance Show (Activity p s l) where
   show (Activity a p t) =
-    "Activity " <> (concat $ intersperse ", " [show p, show t, show a])
+    "Activity " <> intercalate ", " [show p, show t, show a]
+
+activityActivityType :: Pomodoros p s l => Activity p s l -> ActivityType
+activityActivityType (Activity a _ _) = fromSActivityType a
+
+activityPhase :: Pomodoros p s l => Activity p s l -> Phase
+activityPhase (Activity _ p _) = p
 
 instance Eq (Activity p s l) where
   (Activity a1 p1 t1) == (Activity a2 p2 t3) = 
     (fromSActivityType a1, p1, someTimer t1) == (fromSActivityType a2, p2, someTimer t3)
+
 
 data PomodoroConf where
   PomodoroConf

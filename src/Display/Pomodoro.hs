@@ -12,7 +12,7 @@ displayActivityType ShortBreak = "Short break"
 displayActivityType LongBreak = "Long break"
 
 seperateLimit :: Char -> Int -> String -> String -> String
-seperateLimit c t s1 s2 = s1 <> take (t - length s1 - length s2) (repeat c) <> s2
+seperateLimit c t s1 s2 = s1 <> replicate (t - length s1 - length s2) c <> s2
 
 displaySomeState :: SomeState -> String
 displaySomeState (SomeState a p t) =
