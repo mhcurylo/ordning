@@ -2,15 +2,25 @@
 
 An infinite list of pomodoro activities with timers and some sound.
 
-Inspired by IKEA.
+Inspired by IKEA and the book Thinking with Types.
+
+## The why
+
+Pomodoro needs some sound.
+
+Developer needs some side projects.
 
 ## To install
 
 Needs OpenAL / alut installed.
-
+```
 https://wiki.haskell.org/ALUT
+```
+Install with stack. 
+```
+https://docs.haskellstack.org/en/stable/README/#how-to-install
+```
 
-Install with stack.
 
 ## To enjoy
 
@@ -34,6 +44,9 @@ q - quit
 
 To see command line options run with ordning -h.
 
+```
+ordning -h
+
 Available options:
 
   -p,--pomodoro INTEGER    The duration of a pomodoro in minutes (default: 25)
@@ -45,4 +58,4 @@ Available options:
   -q,--quiet               Turn the sound off
 
   -h,--help                Show this help text
-
+```
