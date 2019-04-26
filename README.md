@@ -8,11 +8,11 @@ Inspired by IKEA and the book Thinking with Types.
 
 Pomodoro needs some sound.
 
-Developer needs some side projects.
+Developer needs a side project.
 
 ## To install
 
-Needs OpenAL / alut installed.
+Get OpenAL / ALUT installed.
 ```
 https://wiki.haskell.org/ALUT
 ```
