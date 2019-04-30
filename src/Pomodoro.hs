@@ -42,6 +42,8 @@ pomodoroIO =
     bracket setUp cleanUp $ \_ -> do
       (Configuration pomodoroDur shortBreakDur longBreakDur quiet) <-
         execParser configurationInfo
+      soundHandler <- if quiet then return noSoundHandler
+                               else createSoundHandler
       case mkSomeActivities
              (pomodoroDur * 60)
              (shortBreakDur * 60)
@@ -53,12 +55,12 @@ pomodoroIO =
                   someActs
                   (displayActivity . currentActivity)
           putStrLn $ clrscr <> current
-          withSomeActivities someActs (eventLoop (not quiet) cmds)
+          withSomeActivities someActs (eventLoop soundHandler cmds)
         Nothing -> putStrLn "Incorrect configuration"
 
 eventLoop ::
      Pomodoros p s l
-  => Bool
+  => SoundHandler
   -> TChan (Maybe PomodoroCommand)
   -> Activities p s l
   -> IO ()
