@@ -6,7 +6,7 @@ import Control.Exception
 import Control.Monad
 import Control.Monad.STM
 import Control.Monad.State.Strict
-import Display.Pomodoro 
+import Display.Pomodoro
 import Display.System
 import Effect.PomodoroEvent
 import Options.Applicative
@@ -42,8 +42,10 @@ pomodoroIO =
     bracket setUp cleanUp $ \_ -> do
       (Configuration pomodoroDur shortBreakDur longBreakDur quiet) <-
         execParser configurationInfo
-      soundHandler <- if quiet then return noSoundHandler
-                               else createSoundHandler
+      soundHandler <-
+        if quiet
+          then return noSoundHandler
+          else createSoundHandler
       case mkSomeActivities
              (pomodoroDur * 60)
              (shortBreakDur * 60)
@@ -51,9 +53,7 @@ pomodoroIO =
         Just someActs -> do
           cmds <- createCommandStream
           let current =
-                withSomeActivities
-                  someActs
-                  (displayActivity . currentActivity)
+                withSomeActivities someActs (displayActivity . currentActivity)
           putStrLn $ clrscr <> current
           withSomeActivities someActs (eventLoop soundHandler cmds)
         Nothing -> putStrLn "Incorrect configuration"
@@ -79,7 +79,8 @@ createCommandStream = do
   chan <- atomically newTChan
   _ <-
     forkIO $
-    forever $ do
+    forever $
+     do
       threadDelay 1000000
       atomically $ writeTChan chan $ Just Advance
   _ <-
@@ -101,3 +102,4 @@ createCommandStream = do
        , ('f', Finish)
        , ('a', Abandon)
        ])
+

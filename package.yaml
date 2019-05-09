@@ -24,6 +24,7 @@ default-extensions:
 - InstanceSigs 
 - KindSignatures
 - MultiParamTypeClasses
+- OverloadedStrings
 - RankNTypes 
 - ScopedTypeVariables
 - StandaloneDeriving 
@@ -36,7 +37,7 @@ default-extensions:
 - LambdaCase
 - TypeApplications
 - TemplateHaskell
-#
+
 # Metadata used when publishing your package
 synopsis: Terminal pomodoro timer with sound 
 category: Productivity tool
@@ -53,14 +54,21 @@ library:
   source-dirs: src
   ghc-options: -Wall 
   dependencies:
-    - optparse-applicative  
-    - ansi-terminal
-    - typelits-witnesses
-    - comonad
-    - stm
-    - mtl
-    - OpenAL
     - ALUT
+    - OpenAL
+    - ansi-terminal
+    - bytestring
+    - comonad
+    - conduit
+    - stm-conduit
+    - stm-chans
+    - conduit-extra
+    - mtl
+    - optparse-applicative  
+    - stm
+    - text
+    - transformers
+    - typelits-witnesses
 
 executables:
   ordning:
