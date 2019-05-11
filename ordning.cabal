@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a040e20cd51e80646f2847f6a71f9c734e65e50ad9cf378507383eb4d10c7d4c
+-- hash: bb29c58eab0e705a24b41baab62586b35f86917f1b96e0aad41308ab8f92ff8d
 
 name:           ordning
 version:        0.1.0.0
@@ -90,6 +90,7 @@ test-suite ordning-test
   build-depends:
       QuickCheck
     , base >=4.7 && <5
+    , directory
     , hspec
     , mtl
     , ordning

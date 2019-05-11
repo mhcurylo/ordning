@@ -26,8 +26,6 @@ import Pomodoro.Timer
 
 class (TimerValue p, TimerValue s, TimerValue l) =>
       Pomodoros p s l
-
-
 instance (TimerValue p, TimerValue s, TimerValue l) => Pomodoros p s l
 
 data Phase

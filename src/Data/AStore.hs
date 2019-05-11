@@ -1,43 +1,52 @@
 module Data.AStore where
 
-import Prelude hiding (lines)
 import Conduit
 import Control.Concurrent
 import Control.Concurrent.STM.TBMChan
-import Control.Monad.State
 import Control.Monad.STM
-import Data.Text (pack, unpack)
-import Data.Conduit.Text (encode, decode, utf8, lines)
+import Control.Monad.State
 import Data.Conduit.TMChan (sourceTBMChan)
+import Data.Conduit.Text (decode, encode, lines, utf8)
 import Data.List (reverse)
+import Data.Text (pack, unpack)
+import Prelude hiding (lines)
 
-data Commit m a where
-  Commit :: Monad m => (a -> m ()) -> Commit m a
+data AStoreHandler m a where
+  AStoreHandler :: Monad m => (a -> m ()) -> m () -> AStoreHandler m a
 
-unCommit :: Commit m a -> (a -> m ())
-unCommit (Commit f) = f
+commit :: AStoreHandler m a -> (a -> m ())
+commit (AStoreHandler f _) = f
 
-class Monad m => AStore m a where
-  initAStoreCommit :: m (Commit m a)
-  foldAStore       :: forall b . (b -> a -> b) -> b -> m b 
+close :: AStoreHandler m a -> m ()
+close (AStoreHandler _ c) = c
+
+class Monad m =>
+      AStore m a
+  where
+  initAStore :: String -> m (AStoreHandler m a)
+  foldAStore :: forall b. String -> (b -> a -> b) -> b -> m b
 
 instance AStore (State [a]) a where
-  initAStoreCommit = return $ Commit (\a -> modify (a :))
-  foldAStore f b = get >>= return . foldl f b . reverse
+  initAStore _ = return $ AStoreHandler (\a -> modify (a :)) (return ())
+  foldAStore _ f b = get >>= return . foldl f b . reverse
 
-instance forall a . (Show a, Read a) => AStore IO a where
-  initAStoreCommit = do
-    chan <- atomically $ newTBMChan 1000 
-    _ <- forkIO $ runConduitRes
-                $ sourceTBMChan chan
-                .| mapC (pack . show)
-                .| encode utf8
-                .| sinkFile "~/.ordning_history"
-    return $ Commit $ atomically . writeTBMChan chan
-  foldAStore f b = runConduitRes 
-               $ sourceFile "~/.ordning_history"
-               .| decode utf8
-               .| lines
-               .| mapC (read . unpack)
-               .| foldlC f b
-
+instance forall a. (Show a, Read a) => AStore IO a where
+  initAStore filename = do
+    chan <- atomically $ newTBMChan 1000
+    semaphore <- newEmptyMVar
+    _ <-
+      forkIO $ do
+        runConduitRes $
+          sourceTBMChan chan .| mapC (pack . (++ "\n") . show) .| encode utf8 .|
+          sinkFile filename
+        putMVar semaphore ()
+    return $
+      AStoreHandler (atomically . writeTBMChan chan) $ do
+        atomically $ closeTBMChan chan
+        takeMVar semaphore
+  foldAStore filename f b = do
+    res <-
+      runConduitRes $
+      sourceFile filename .| decode utf8 .| lines .| mapC (read . unpack) .|
+      foldlC f b
+    return res
