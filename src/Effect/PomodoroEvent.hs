@@ -23,12 +23,19 @@ noSoundHandler = SoundHandler noSound noSound noSound
   where
   noSound = return ()
 
+createSource :: forall a . [SoundDataSource a] -> IO Source
+createSource  waves = do
+  buffers <- traverse createBuffer waves
+  [source] <- genObjectNames 1
+  queueBuffers source buffers
+  return source
+  
 createSoundHandler :: IO SoundHandler
 createSoundHandler = do
-  tickBuffer <- createBuffer $ Sine 130 0 0.05
-  celebrateBuffer <- traverse createBuffer [Sine 523 0 0.5, Sine 587 0 0.5]
-  errBuffer <- createBuffer $ Sine 260 0 0.1
-  return $ SoundHandler (playSound [tickBuffer]) (playSound celebrateBuffer) (playSound [errBuffer])
+  tickSource <- createSource [Sine 130 0 0.05]
+  celebrateSource <- createSource [Sine 523 0 0.5, Sine 587 0 0.5]
+  errSource <- createSource [Sine 260 0 0.1]
+  return $ SoundHandler (play [tickSource]) (play [celebrateSource]) (play [errSource])
 
 ignore :: IO ()
 ignore = return ()
@@ -46,8 +53,3 @@ soundEffect _ _ = ignore
 runPomodoroEffects :: SoundHandler -> [PomodoroEvent] -> IO ()
 runPomodoroEffects sound = sequence_ . ([displayOnChange, soundEffect sound] <*>)
 
-playSound :: [Buffer] -> IO () 
-playSound buffers = do
-  [source] <- genObjectNames 1
-  queueBuffers source buffers
-  play [source]

@@ -1,8 +1,10 @@
--- This file has been generated from package.yaml by hpack version 0.28.2.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bb29c58eab0e705a24b41baab62586b35f86917f1b96e0aad41308ab8f92ff8d
+-- hash: fd4d59f0eeb6c8a4b827d35ea92b1930f0f68ad5cf227ccdc781ef16b5f623b4
 
 name:           ordning
 version:        0.1.0.0
@@ -17,10 +19,9 @@ copyright:      2019 Mateusz Curylo
 license:        MIT
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
 extra-source-files:
-    ChangeLog.md
     README.md
+    ChangeLog.md
 
 source-repository head
   type: git
